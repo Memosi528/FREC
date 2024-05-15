@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <string.h>
+#include <openssl/des.h>
+
+#define KEY_SIZE 8
+#define DATA_SIZE 8
+
+void print_hex(unsigned char *data, int length) {
+    for (int i = 0; i < length; i++) {
+        printf("%02x", data[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    // Ключ за шифриране (трябва да бъде точно 8 байта за DES)
+    unsigned char key[KEY_SIZE] = "banichka";
+    
+    // Входни данни за шифриране и декриптиране (точно 8 байта)
+    unsigned char input[DATA_SIZE] = "12345678";
+    
+    // Буфер за изходните (шифровани или декриптирани) данни
+    unsigned char output[DATA_SIZE];
+    
+    // Структура за ключовия график
+    DES_key_schedule key_schedule;
+
+    // Задаване на ключа
+    if (DES_set_key((DES_cblock *)key, &key_schedule) != 0) {
+        fprintf(stderr, "Error setting key schedule.\n");
+        return 1;
+    }
+
+    // Шифриране на входните данни
+    DES_ecb_encrypt((DES_cblock *)input, (DES_cblock*)output, &key_schedule, DES_ENCRYPT);
+    printf("Encrypted data: ");
+    print_hex(output, DATA_SIZE);
+
+    // Декриптиране на шифрираните данни
+    DES_ecb_encrypt((DES_cblock *)output, (DES_cblock*)output, &key_schedule, DES_DECRYPT);
+    printf("Decrypted data: %s\n", output);
+
+    return 0;
+}
